@@ -1,0 +1,143 @@
+package com.funo.livelihood.util;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class GsonUtil {
+
+    private static Gson gson;
+
+    static {
+        gson = new Gson();
+    }
+
+    /**
+     * @param jsonString
+     * @param cls
+     * @return
+     * @descreption:将{"name":"张三","sex":"男","age":"30" 封装成Bean对象
+     */
+    public static <T> T getBean(String jsonString, Class<T> cls) {
+        T t = null;
+        try {
+            t = gson.fromJson(jsonString, cls);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return t;
+    }
+
+    /***
+     * @param jsonString
+     * @param cls
+     * @return
+     * @descreption:[{"name":"张三","sex":"男","age":"30" ,{"name":"李四","sex":"女","age"
+     * :"40"}]封装成List<Bean>集合
+     */
+    public static <T> List<T> getBeans(String jsonString, Class<T> cls) {
+        List<T> list = new ArrayList<T>();
+        try {
+            // 外部遍历list的时候，linkedtreemap cannot be cast to T的子类，如Student
+            // list = gson.fromJson(jsonString, new TypeToken<List<T>>()
+            // {}.getType());
+
+            JsonArray array = new JsonParser().parse(jsonString)
+                    .getAsJsonArray();
+            for (final JsonElement elem : array) {
+                list.add(new Gson().fromJson(elem, cls));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * @param jsonString
+     * @return
+     * @descreption:{"sex":"男","age":"30","name":"张三" 封装成map对象
+     */
+    public static Map<String, Object> getMap(String jsonString) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        try {
+            map = gson.fromJson(jsonString,
+                    new TypeToken<Map<String, Object>>() {
+                    }.getType());
+        } catch (Exception e) {
+        }
+        return map;
+    }
+
+    /**
+     * @param jsonString
+     * @return
+     * @descreption:[{"name":"张三","sex":"男","age":"30" ,{"name":"李四","sex":"女","age"
+     * :"40"}]封装成List<Map<String
+     * ,Object>集合
+     */
+    public static List<Map<String, Object>> getListMap(String jsonString) {
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        try {
+            list = gson.fromJson(jsonString,
+                    new TypeToken<List<Map<String, Object>>>() {
+                    }.getType());
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
+    /**
+     * @param jsonString
+     * @return
+     * @descreption:["张三","李四","王五"]封装成List<String>集合
+     */
+    public static List<String> getListString(String jsonString) {
+        List<String> list = new ArrayList<String>();
+        try {
+            Gson gson = new Gson();
+            list = gson.fromJson(jsonString, new TypeToken<List<String>>() {
+            }.getType());
+        } catch (Exception e) {
+        }
+        return list;
+    }
+
+    /**
+     * 将hashMap转换成key1=value1&key2=value2格式
+     * @param maps
+     * @return
+     */
+    public static String mapToParams(HashMap<String,String> maps){
+        String params = "";
+        Iterator<Map.Entry<String, String>> it = maps.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, String> entry = it.next();
+            params += entry.getKey() + "=" + entry.getValue();
+            if (it.hasNext()) {
+                params += "&";
+            }
+        }
+        return params;
+    }
+
+    /**
+     * 将hashMap转换成json
+     * @param maps
+     * @return
+     */
+    public static JSONObject mapToJson(HashMap<String,String> maps){
+        JSONObject json = new JSONObject(maps);
+        return json;
+    }
+}
